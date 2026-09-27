@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soil & Climate Analysis - OptiCrop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header>
+    <nav>
+        <h2 class="logo">🌱 OptiCrop</h2>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/findcrop">Find Crop</a></li>
+            <li><a href="/assistant">AI Assistant</a></li>
+            <li><a href="/history">History</a></li>
+            <li><a href="/evaluation">Model Performance</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="result-section">
+    <div class="farmer-result-container">
+
+        <!-- Top Navigation Banner -->
+        <div class="subpage-header-banner">
+            <a href="/history/{{ pred.id }}" class="back-link">← Back to Crop Recommendation</a>
+            <span class="crop-context-tag">Crop: <strong>{{ pred.primary_crop | capitalize }}</strong></span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="result-card page-title-card">
+            <div class="tick">🧪</div>
+            <h1 class="farmer-heading">SOIL & CLIMATE ANALYSIS</h1>
+            <p class="farmer-subtext">
+                Detailed assessment of your soil nutrient concentrations and climatic parameters compared against historical dataset distributions for <strong>{{ pred.primary_crop | capitalize }}</strong>.
+            </p>
+        </div>
+
+        <!-- SECTION A: Soil Analysis -->
+        <div class="result-card analysis-card">
+            <h2>🌱 SECTION A — SOIL ANALYSIS</h2>
+            <p class="section-subtext">
+                Evaluation of soil macronutrients (Nitrogen, Phosphorus, Potassium) and soil acidity (pH):
+            </p>
+
+            <div class="analysis-list">
+                {% for item in pred.soil_analysis %}
+                <div class="analysis-item {{ item.badge_class }}">
+                    <div class="item-header">
+                        <div>
+                            <span class="item-name">{{ item.name }}</span>
+                            <span class="param-val-tag">{{ item.value }} {{ item.unit }}</span>
+                        </div>
+                        <span class="status-pill {{ item.badge_class }}">
+                            {{ item.status_icon }} {{ item.status_text }}
+                        </span>
+                    </div>
+                    <p class="item-exp">{{ item.explanation }}</p>
+                    <div class="ref-range-note">
+                        <span>📊 Dataset Benchmark Average: <strong>{{ item.crop_avg }} {{ item.unit }}</strong></span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- SECTION B: Climate Analysis -->
+        <div class="result-card analysis-card">
+            <h2>🌦️ SECTION B — CLIMATE ANALYSIS</h2>
+            <p class="section-subtext">
+                Evaluation of ambient temperature, atmospheric humidity, and rainfall conditions:
+            </p>
+
+            <div class="analysis-list">
+                {% for item in pred.climate_analysis %}
+                <div class="analysis-item {{ item.badge_class }}">
+                    <div class="item-header">
+                        <div>
+                            <span class="item-name">{{ item.name }}</span>
+                            <span class="param-val-tag">{{ item.value }} {{ item.unit }}</span>
+                        </div>
+                        <span class="status-pill {{ item.badge_class }}">
+                            {{ item.status_icon }} {{ item.status_text }}
+                        </span>
+                    </div>
+                    <p class="item-exp">{{ item.explanation }}</p>
+                    <div class="ref-range-note">
+                        <span>📊 Dataset Benchmark Average: <strong>{{ item.crop_avg }} {{ item.unit }}</strong></span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Multi-page Step Navigation -->
+        <div class="step-nav-card">
+            <div class="step-actions-wrap">
+                <a href="/history/{{ pred.id }}">
+                    <button class="secondary-btn">← Back to Crop Recommendation</button>
+                </a>
+                <a href="/insights?id={{ pred.id }}">
+                    <button class="main-btn">📊 View Field Visual Insights →</button>
+                </a>
+                <a href="/assistant?id={{ pred.id }}">
+                    <button class="ai-btn">🤖 Ask AI Assistant</button>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<footer>
+    <p>© 2026 OptiCrop | AI Powered Crop Recommendation System</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Crop Recommendation - OptiCrop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header>
+    <nav>
+        <h2 class="logo">🌱 OptiCrop</h2>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/findcrop">Find Crop</a></li>
+            <li><a href="/assistant">AI Assistant</a></li>
+            <li><a href="/history">History</a></li>
+            <li><a href="/evaluation">Model Performance</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="result-section">
+    <div class="farmer-result-container">
+
+        {% if error %}
+            <div class="result-card error-card">
+                <div class="tick">⚠️</div>
+                <h1>Input Error</h1>
+                <p>{{ error }}</p>
+                <br>
+                <a href="/findcrop"><button class="main-btn">🔄 Try Again</button></a>
+            </div>
+        {% else %}
+
+            <!-- Section 1: Main Recommendation Card -->
+            <div class="result-card main-recommendation-card">
+                <div class="tick">🌾</div>
+                <h1 class="farmer-heading">CROP RECOMMENDATION</h1>
+
+                <div class="farmer-crop-highlight">
+                    <span class="crop-badge-label">Recommended Crop</span>
+                    <h2 class="farmer-crop-name">{{ prediction | upper }}</h2>
+                    {% if confidence %}
+                    <span class="model-confidence-tag">Model Confidence: {{ confidence }}%</span>
+                    {% endif %}
+                </div>
+
+                <p class="farmer-subtext">
+                    Based on the soil and climate values you provided, this crop is associated with suitable conditions in the trained model.
+                </p>
+
+                <!-- Ask AI Assistant Direct Button -->
+                <div style="margin-top: 20px;">
+                    <a href="/assistant?id={{ pred_id }}">
+                        <button class="ai-assistant-btn">🤖 Ask Agricultural AI About This Recommendation →</button>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Section 2: Other Suitable Crops Section -->
+            {% if top_predictions %}
+            <div class="result-card other-crops-card">
+                <h2>🌱 OTHER SUITABLE CROPS</h2>
+                <div class="farmer-top3-grid">
+                    {% for item in top_predictions %}
+                    <div class="farmer-crop-box rank-{{ item.rank }}">
+                        <div class="rank-num">#{{ item.rank }}</div>
+                        <div class="crop-info">
+                            <span class="crop-title">{{ item.crop | capitalize }}</span>
+                            <span class="crop-conf">Suitability: {{ item.confidence }}%</span>
+                        </div>
+                        <div class="conf-bar-bg">
+                            <div class="conf-bar-fill" style="width: {{ item.confidence }}%;"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Section 3: Overall Field Conditions Summary -->
+            {% if field_summary %}
+            <div class="result-card field-summary-card">
+                <h2>🌱 OVERALL FIELD CONDITIONS</h2>
+                <div class="summary-grid">
+                    <div class="summary-box">
+                        <span class="summary-title">Soil Health</span>
+                        <span class="status-pill {{ field_summary.soil_badge }}">{{ field_summary.soil_status }}</span>
+                    </div>
+                    <div class="summary-box">
+                        <span class="summary-title">Climate Compatibility</span>
+                        <span class="status-pill {{ field_summary.climate_badge }}">{{ field_summary.climate_status }}</span>
+                    </div>
+                    <div class="summary-box">
+                        <span class="summary-title">Target Crop</span>
+                        <span class="summary-crop-tag">{{ field_summary.recommended_crop }}</span>
+                    </div>
+                </div>
+                <p class="summary-desc">{{ field_summary.summary_text }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Section 4: Why This Recommendation Card -->
+            {% if explanation %}
+            <div class="result-card explanation-card">
+                <h2>💡 WHY THIS RECOMMENDATION?</h2>
+                <p class="explanation-text">{{ explanation }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Section 5: Important Advisory Note -->
+            <div class="result-card advisory-card">
+                <div class="advisory-header">
+                    <span class="advisory-icon">📌</span>
+                    <h3>IMPORTANT ADVISORY</h3>
+                </div>
+                <p class="advisory-text">
+                    This recommendation is based on the information provided and the patterns learned from the training dataset. Actual crop suitability may also depend on local soil conditions, season, irrigation, pests, and other agricultural factors.
+                </p>
+            </div>
+
+            <!-- Section 6: Action & Detail Navigation Buttons -->
+            <div class="result-card detailed-nav-card">
+                <h3>🔍 Explore Deeper Field Analysis & Insights</h3>
+                <p class="detailed-nav-desc">View comprehensive parameter breakdowns and visual nutrient charts for this prediction:</p>
+                <div class="detailed-action-grid">
+                    <a href="/analysis?id={{ pred_id }}" class="detail-action-btn primary-nav-btn">
+                        <span class="btn-icon">🧪</span>
+                        <div class="btn-text-wrap">
+                            <strong>Soil & Climate Analysis</strong>
+                            <span>Review NPK, pH, temperature & rainfall status</span>
+                        </div>
+                        <span class="btn-arrow">→</span>
+                    </a>
+                    <a href="/insights?id={{ pred_id }}" class="detail-action-btn primary-nav-btn">
+                        <span class="btn-icon">📊</span>
+                        <div class="btn-text-wrap">
+                            <strong>Field Visual Insights</strong>
+                            <span>View nutrient comparison bars & pH gauge</span>
+                        </div>
+                        <span class="btn-arrow">→</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Standard Secondary Actions -->
+            <div class="farmer-actions">
+                <a href="/findcrop">
+                    <button class="main-btn">🌾 Predict Another Crop</button>
+                </a>
+                <a href="/assistant?id={{ pred_id }}">
+                    <button class="ai-btn">🤖 Ask AI Assistant</button>
+                </a>
+                <a href="/history">
+                    <button class="secondary-btn">📜 Prediction History</button>
+                </a>
+                <a href="/evaluation">
+                    <button class="outline-btn">📊 Technical Details</button>
+                </a>
+            </div>
+
+        {% endif %}
+
+    </div>
+</section>
+
+<footer>
+    <p>© 2026 OptiCrop | AI Powered Crop Recommendation System</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Record - OptiCrop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header>
+    <nav>
+        <h2 class="logo">🌱 OptiCrop</h2>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/findcrop">Find Crop</a></li>
+            <li><a href="/assistant">AI Assistant</a></li>
+            <li><a href="/history">History</a></li>
+            <li><a href="/evaluation">Model Performance</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="result-section">
+    <div class="farmer-result-container">
+
+        <!-- History Record Header Banner -->
+        <div class="subpage-header-banner">
+            <a href="/history" class="back-link">← Back to History List</a>
+            <span class="crop-context-tag">📅 Saved: {{ pred.date_str }} at {{ pred.time_str }}</span>
+        </div>
+
+        <!-- Section 1: Main Recommendation Card -->
+        <div class="result-card main-recommendation-card">
+            <div class="tick">🌾</div>
+            <h1 class="farmer-heading">CROP RECOMMENDATION</h1>
+
+            <div class="farmer-crop-highlight">
+                <span class="crop-badge-label">Recommended Crop</span>
+                <h2 class="farmer-crop-name">{{ pred.primary_crop | upper }}</h2>
+                <span class="model-confidence-tag">Model Confidence: {{ pred.confidence }}%</span>
+            </div>
+
+            <p class="farmer-subtext">
+                Historical recommendation generated for these field parameters.
+            </p>
+
+            <div style="margin-top: 20px;">
+                <a href="/assistant?id={{ pred.id }}">
+                    <button class="ai-assistant-btn">🤖 Ask Agricultural AI About This Recommendation →</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- Section 2: Other Suitable Crops Section -->
+        {% if pred.top_predictions %}
+        <div class="result-card other-crops-card">
+            <h2>🌱 OTHER SUITABLE CROPS</h2>
+            <div class="farmer-top3-grid">
+                {% for item in pred.top_predictions %}
+                <div class="farmer-crop-box rank-{{ item.rank }}">
+                    <div class="rank-num">#{{ item.rank }}</div>
+                    <div class="crop-info">
+                        <span class="crop-title">{{ item.crop | capitalize }}</span>
+                        <span class="crop-conf">Suitability: {{ item.confidence }}%</span>
+                    </div>
+                    <div class="conf-bar-bg">
+                        <div class="conf-bar-fill" style="width: {{ item.confidence }}%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Section 3: Overall Field Conditions Summary -->
+        {% if pred.field_summary %}
+        <div class="result-card field-summary-card">
+            <h2>🌱 OVERALL FIELD CONDITIONS</h2>
+            <div class="summary-grid">
+                <div class="summary-box">
+                    <span class="summary-title">Soil Health</span>
+                    <span class="status-pill {{ pred.field_summary.soil_badge }}">{{ pred.field_summary.soil_status }}</span>
+                </div>
+                <div class="summary-box">
+                    <span class="summary-title">Climate Compatibility</span>
+                    <span class="status-pill {{ pred.field_summary.climate_badge }}">{{ pred.field_summary.climate_status }}</span>
+                </div>
+                <div class="summary-box">
+                    <span class="summary-title">Target Crop</span>
+                    <span class="summary-crop-tag">{{ pred.field_summary.recommended_crop }}</span>
+                </div>
+            </div>
+            <p class="summary-desc">{{ pred.field_summary.summary_text }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Section 4: Why This Recommendation Card -->
+        {% if pred.explanation %}
+        <div class="result-card explanation-card">
+            <h2>💡 WHY THIS RECOMMENDATION?</h2>
+            <p class="explanation-text">{{ pred.explanation }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Section 5: Detailed Analysis Navigation Cards -->
+        <div class="result-card detailed-nav-card">
+            <h3>🔍 Explore Deeper Field Analysis</h3>
+            <p class="detailed-nav-desc">View comprehensive parameter breakdowns and visual charts for this saved record:</p>
+            <div class="detailed-action-grid">
+                <a href="/analysis?id={{ pred.id }}" class="detail-action-btn primary-nav-btn">
+                    <span class="btn-icon">🧪</span>
+                    <div class="btn-text-wrap">
+                        <strong>Soil & Climate Analysis</strong>
+                        <span>Review detailed parameter status & benchmark averages</span>
+                    </div>
+                    <span class="btn-arrow">→</span>
+                </a>
+                <a href="/insights?id={{ pred.id }}" class="detail-action-btn primary-nav-btn">
+                    <span class="btn-icon">📊</span>
+                    <div class="btn-text-wrap">
+                        <strong>Field Visual Insights</strong>
+                        <span>View nutrient comparison bars & pH gauge</span>
+                    </div>
+                    <span class="btn-arrow">→</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Section 6: Action Buttons -->
+        <div class="farmer-actions">
+            <a href="/history">
+                <button class="secondary-btn">← Back to History List</button>
+            </a>
+            <a href="/assistant?id={{ pred.id }}">
+                <button class="ai-btn">🤖 Ask AI Assistant</button>
+            </a>
+            <a href="/findcrop">
+                <button class="main-btn">🌾 New Crop Prediction</button>
+            </a>
+        </div>
+
+    </div>
+</section>
+
+<footer>
+    <p>© 2026 OptiCrop | AI Powered Crop Recommendation System</p>
+</footer>
+
+</body>
+</html>

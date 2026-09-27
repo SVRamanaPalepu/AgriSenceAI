@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OptiCrop - Home</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header>
+    <nav>
+        <div class="logo">🌱 OptiCrop</div>
+
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/findcrop">Find Crop</a></li>
+            <li><a href="/assistant">AI Assistant</a></li>
+            <li><a href="/history">History</a></li>
+            <li><a href="/evaluation">Model Performance</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="hero-home">
+
+    <div class="hero-content">
+
+        <h1>Smart Crop Recommendation System</h1>
+
+        <p>
+            Predict the most suitable crop for your field using artificial intelligence,
+            soil nutrients, and climatic conditions with AI Assistant guidance, complete field insights, and prediction history.
+        </p>
+
+        <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+            <a href="/findcrop">
+                <button class="main-btn">🌾 Start Prediction</button>
+            </a>
+            <a href="/assistant">
+                <button class="ai-btn">🤖 Ask AI Assistant</button>
+            </a>
+            <a href="/history">
+                <button class="secondary-btn">📜 View History</button>
+            </a>
+        </div>
+
+    </div>
+
+</section>
+
+<section class="feature-section">
+
+    <h2>Why Choose OptiCrop?</h2>
+
+    <div class="feature-grid">
+
+        <div class="feature-box">
+            <h3>🌱 Soil & Climate Analysis</h3>
+            <p>Analyze Nitrogen, Phosphorus, Potassium, Soil pH, Temperature, Humidity, and Rainfall.</p>
+        </div>
+
+        <div class="feature-box">
+            <h3>🤖 Agricultural AI Assistant</h3>
+            <p>Ask questions about your land, NPK nutrients, soil pH, climate factors, and get instant explanations.</p>
+        </div>
+
+        <div class="feature-box">
+            <h3>📊 Visual Field Insights</h3>
+            <p>Interactive nutrient bars, climate range chips, and soil pH spectrum meters.</p>
+        </div>
+
+    </div>
+
+</section>
+
+<section class="stats-section">
+
+    <div class="stat-box">
+        <h2>22+</h2>
+        <p>Crops Supported</p>
+    </div>
+
+    <div class="stat-box">
+        <h2>99.8%</h2>
+        <p>Model Accuracy</p>
+    </div>
+
+    <div class="stat-box">
+        <h2>AI</h2>
+        <p>Assistant Powered</p>
+    </div>
+
+</section>
+
+<footer>
+
+    © 2026 OptiCrop | AI Powered Crop Recommendation System
+
+</footer>
+
+</body>
+</html>

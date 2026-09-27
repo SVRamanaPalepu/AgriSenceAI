@@ -1,0 +1,249 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agricultural AI Assistant - AgroSense AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header>
+    <nav>
+        <h2 class="logo">🌱 OptiCrop</h2>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/findcrop">Find Crop</a></li>
+            <li><a href="/assistant">AI Assistant</a></li>
+            <li><a href="/history">History</a></li>
+            <li><a href="/evaluation">Model Performance</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="assistant-section">
+    <div class="assistant-container">
+
+        <!-- Assistant Header -->
+        <div class="assistant-header-card">
+            <div class="assistant-avatar">🤖</div>
+            <div class="assistant-header-text">
+                <h1>Agricultural AI Assistant</h1>
+                <p>Ask me anything about your crop recommendation, soil nutrients (NPK), soil pH, climate conditions, and general farming practices.</p>
+            </div>
+            <button class="clear-chat-btn" id="clearChatBtn" onclick="clearChat()">🗑️ Clear Chat</button>
+        </div>
+
+        <!-- Active Context Banner -->
+        {% if pred %}
+        <div class="context-banner">
+            <div class="context-icon">🌾</div>
+            <div class="context-info">
+                <strong>Active Field Context:</strong> Recommendation for <span class="highlight-crop">{{ pred.primary_crop | capitalize }}</span> (Confidence: {{ pred.confidence }}%)
+                <span class="context-params">
+                    [N: {{ pred.nitrogen }}, P: {{ pred.phosphorus }}, K: {{ pred.potassium }}, pH: {{ pred.ph }}, Temp: {{ pred.temperature }}°C, Rain: {{ pred.rainfall }} mm]
+                </span>
+            </div>
+        </div>
+        {% else %}
+        <div class="context-banner general-mode">
+            <div class="context-icon">💡</div>
+            <div class="context-info">
+                <strong>General Agriculture Mode:</strong> No active field prediction loaded. You can ask general farming and agronomic questions, or submit field values on the <a href="/findcrop">Find Crop</a> page.
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Questions Carousel / Chips -->
+        <div class="quick-questions-card">
+            <span class="quick-label">⚡ Quick Questions:</span>
+            <div class="quick-chips-wrap">
+                {% if pred %}
+                <button class="quick-chip" onclick="sendQuickQuestion('Why was this crop recommended?')">Why was this crop recommended?</button>
+                <button class="quick-chip" onclick="sendQuickQuestion('Explain my prediction in simple words.')">Explain my prediction in simple words.</button>
+                <button class="quick-chip" onclick="sendQuickQuestion('Tell me about the recommended crop.')">Tell me about the recommended crop.</button>
+                <button class="quick-chip" onclick="sendQuickQuestion('Is my soil suitable?')">Is my soil suitable?</button>
+                {% endif %}
+                <button class="quick-chip" onclick="sendQuickQuestion('What is NPK?')">What is NPK?</button>
+                <button class="quick-chip" onclick="sendQuickQuestion('What does nitrogen do?')">What does nitrogen do?</button>
+                <button class="quick-chip" onclick="sendQuickQuestion('What is soil pH?')">What is soil pH?</button>
+                <button class="quick-chip" onclick="sendQuickQuestion('What does humidity mean?')">What does humidity mean?</button>
+                <button class="quick-chip" onclick="sendQuickQuestion('What does rainfall affect?')">What does rainfall affect?</button>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-window-card">
+            <div class="chat-messages-area" id="chatMessages">
+                
+                <!-- Initial Welcome Message from AI -->
+                <div class="message-bubble assistant-message">
+                    <div class="message-header">
+                        <span class="sender-name">🌱 AGROSENSE AI</span>
+                    </div>
+                    <div class="message-body">
+                        {% if pred %}
+                            Hello! I have loaded your recent prediction context for <strong>{{ pred.primary_crop | capitalize }}</strong>. You can ask me why this crop was recommended, how your soil nutrients look, or any general farming question!
+                        {% else %}
+                            Hello! I am your Agricultural AI Assistant. Feel free to ask me anything about soil nutrients (NPK), soil pH, climate parameters, or crop cultivation!
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Existing Session Messages if any -->
+                {% for msg in chat_history %}
+                    {% if msg.sender == 'user' %}
+                    <div class="message-bubble user-message">
+                        <div class="message-header">
+                            <span class="sender-name">👤 USER</span>
+                        </div>
+                        <div class="message-body">{{ msg.text }}</div>
+                    </div>
+                    {% else %}
+                    <div class="message-bubble assistant-message">
+                        <div class="message-header">
+                            <span class="sender-name">🌱 AGROSENSE AI</span>
+                        </div>
+                        <div class="message-body">{{ msg.text | replace('\n', '<br>') | safe }}</div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Typing Spinner Placeholder (hidden by default) -->
+                <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="typing-text">AgroSense AI is thinking...</span>
+                </div>
+
+            </div>
+
+            <!-- Chat Input Area -->
+            <div class="chat-input-container">
+                <input type="text" id="userInput" class="chat-input" placeholder="Ask an agricultural question (e.g. 'What does nitrogen do?')..." onkeydown="handleKeyPress(event)">
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                    <span>Send</span> ➔
+                </button>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<footer>
+    <p>© 2026 OptiCrop | AI Powered Crop Recommendation System</p>
+</footer>
+
+<script>
+    const activePredId = "{{ pred.id if pred else '' }}";
+
+    function scrollToBottom() {
+        const chatArea = document.getElementById("chatMessages");
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function handleKeyPress(e) {
+        if (e.key === "Enter") {
+            sendMessage();
+        }
+    }
+
+    function sendQuickQuestion(questionText) {
+        document.getElementById("userInput").value = questionText;
+        sendMessage();
+    }
+
+    function appendMessage(sender, text) {
+        const chatArea = document.getElementById("chatMessages");
+        const typingInd = document.getElementById("typingIndicator");
+        
+        const bubble = document.createElement("div");
+        bubble.className = sender === "user" ? "message-bubble user-message" : "message-bubble assistant-message";
+        
+        const header = document.createElement("div");
+        header.className = "message-header";
+        header.innerHTML = `<span class="sender-name">${sender === 'user' ? '👤 USER' : '🌱 AGROSENSE AI'}</span>`;
+        
+        const body = document.createElement("div");
+        body.className = "message-body";
+        // Format linebreaks
+        body.innerHTML = text.replace(/\n/g, "<br>");
+        
+        bubble.appendChild(header);
+        bubble.appendChild(body);
+        
+        chatArea.insertBefore(bubble, typingInd);
+        scrollToBottom();
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById("userInput");
+        const message = input.value.trim();
+        if (!message) return;
+
+        // Clear input and append user bubble
+        input.value = "";
+        appendMessage("user", message);
+
+        // Show typing indicator
+        const typingInd = document.getElementById("typingIndicator");
+        typingInd.style.display = "flex";
+        scrollToBottom();
+
+        try {
+            const response = await fetch("/api/assistant/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: message,
+                    id: activePredId
+                })
+            });
+
+            const data = await response.json();
+            typingInd.style.display = "none";
+
+            if (data.response) {
+                appendMessage("assistant", data.response);
+            } else {
+                appendMessage("assistant", "Sorry, I could not generate a response. Please try again.");
+            }
+        } catch (err) {
+            typingInd.style.display = "none";
+            appendMessage("assistant", "Sorry, the Agricultural Assistant is temporarily unavailable. Please try again.");
+        }
+    }
+
+    async function clearChat() {
+        if (!confirm("Clear your conversation history?")) return;
+        
+        try {
+            await fetch("/api/assistant/clear", { method: "POST" });
+            const chatArea = document.getElementById("chatMessages");
+            const typingInd = document.getElementById("typingIndicator");
+            
+            // Keep only welcome message & typing indicator
+            chatArea.innerHTML = `
+                <div class="message-bubble assistant-message">
+                    <div class="message-header">
+                        <span class="sender-name">🌱 AGROSENSE AI</span>
+                    </div>
+                    <div class="message-body">
+                        Conversation cleared. How can I assist you with your farming and field questions today?
+                    </div>
+                </div>
+            `;
+            chatArea.appendChild(typingInd);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // Scroll to bottom on load
+    window.onload = scrollToBottom;
+</script>
+
+</body>
+</html>

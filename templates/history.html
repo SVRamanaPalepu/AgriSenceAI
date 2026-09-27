@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction History - OptiCrop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        function confirmClearHistory(event) {
+            if (!confirm("Are you sure you want to clear all previous prediction records? This action cannot be undone.")) {
+                event.preventDefault();
+                return false;
+            }
+            return true;
+        }
+    </script>
+</head>
+<body>
+
+<header>
+    <nav>
+        <h2 class="logo">🌱 OptiCrop</h2>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/findcrop">Find Crop</a></li>
+            <li><a href="/assistant">AI Assistant</a></li>
+            <li><a href="/history">History</a></li>
+            <li><a href="/evaluation">Model Performance</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="history-section">
+    <div class="history-container">
+        <div class="history-header">
+            <div>
+                <h1>📜 Prediction History</h1>
+                <p class="history-subtitle">Review your past soil and climate crop recommendations.</p>
+            </div>
+            {% if predictions %}
+            <form action="/history/clear" method="POST" onsubmit="return confirmClearHistory(event);">
+                <button type="submit" class="clear-btn">🗑️ Clear History</button>
+            </form>
+            {% endif %}
+        </div>
+
+        {% if not predictions %}
+            <div class="empty-history-card">
+                <div class="empty-icon">📂</div>
+                <h3>No Prediction History Yet</h3>
+                <p>Submit your field parameters on the Find Crop page to generate your first recommendation.</p>
+                <br>
+                <a href="/findcrop"><button class="main-btn">🌾 Start Prediction</button></a>
+            </div>
+        {% else %}
+            <div class="history-list">
+                {% for item in predictions %}
+                <div class="history-card">
+                    <div class="history-card-top">
+                        <div class="history-meta">
+                            <span class="hist-date">📅 {{ item.date_str }}</span>
+                            <span class="hist-time">⏰ {{ item.time_str }}</span>
+                        </div>
+                        <span class="hist-conf-badge">{{ item.confidence }}% Confidence</span>
+                    </div>
+
+                    <div class="history-main-content">
+                        <div class="hist-crop-box">
+                            <span class="hist-crop-label">Recommended Crop</span>
+                            <h3 class="hist-crop-name">{{ item.primary_crop | capitalize }}</h3>
+                        </div>
+
+                        <div class="hist-details-grid">
+                            <div class="hist-param-col">
+                                <strong>🧪 Soil Nutrients:</strong>
+                                <span>N: {{ item.nitrogen }} | P: {{ item.phosphorus }} | K: {{ item.potassium }} | pH: {{ item.ph }}</span>
+                            </div>
+                            <div class="hist-param-col">
+                                <strong>🌦️ Climate:</strong>
+                                <span>Temp: {{ item.temperature }}°C | Humidity: {{ item.humidity }}% | Rain: {{ item.rainfall }} mm</span>
+                            </div>
+                            <div class="hist-param-col">
+                                <strong>🌱 Top 3 Crops:</strong>
+                                <span>
+                                    {% for c in item.top_predictions %}
+                                        {{ c.rank }}. {{ c.crop | capitalize }}{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="history-card-actions">
+                        <a href="/assistant?id={{ item.id }}">
+                            <button class="view-detail-btn" style="background:#e8f5e9; border-color:#81c784;">🤖 Ask AI</button>
+                        </a>
+                        <a href="/history/{{ item.id }}">
+                            <button class="view-detail-btn">🔍 View Full Details</button>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div style="text-align:center; margin-top: 35px;">
+            <a href="/findcrop"><button class="main-btn">🌾 New Crop Prediction</button></a>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>© 2026 OptiCrop | AI Powered Crop Recommendation System</p>
+</footer>
+
+</body>
+</html>

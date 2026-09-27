@@ -1,0 +1,6 @@
+﻿# Git Ignore
+.env
+__pycache__/
+*.pyc
+*.pyo
+predictions.db

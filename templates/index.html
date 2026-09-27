@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Your Crop - OptiCrop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header>
+    <nav>
+        <h2 class="logo">🌱 OptiCrop</h2>
+
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/findcrop">Find Crop</a></li>
+            <li><a href="/assistant">AI Assistant</a></li>
+            <li><a href="/history">History</a></li>
+            <li><a href="/evaluation">Model Performance</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="predict-section">
+
+<div class="predict-box">
+
+<h1>🌾 Find Your Best Crop</h1>
+
+<p>
+Enter your soil nutrient and climatic conditions below to receive simple, clear recommendations for your land with complete visual insights and AI Assistant support.
+</p>
+
+<form action="/predict" method="POST">
+
+<div class="form-grid">
+
+<div>
+<label>Nitrogen (N) [kg/ha]</label>
+<input type="number" name="N" placeholder="e.g. 90" required>
+</div>
+
+<div>
+<label>Phosphorus (P) [kg/ha]</label>
+<input type="number" name="P" placeholder="e.g. 42" required>
+</div>
+
+<div>
+<label>Potassium (K) [kg/ha]</label>
+<input type="number" name="K" placeholder="e.g. 43" required>
+</div>
+
+<div>
+<label>Temperature (°C)</label>
+<input type="number" step="0.01" name="temperature" placeholder="e.g. 20.87" required>
+</div>
+
+<div>
+<label>Humidity (%)</label>
+<input type="number" step="0.01" name="humidity" placeholder="e.g. 82.00" required>
+</div>
+
+<div>
+<label>Soil pH (0-14)</label>
+<input type="number" step="0.01" name="ph" placeholder="e.g. 6.50" required>
+</div>
+
+<div>
+<label>Rainfall (mm)</label>
+<input type="number" step="0.01" name="rainfall" placeholder="e.g. 202.93" required>
+</div>
+
+</div>
+
+<center>
+<button type="submit" class="main-btn" style="margin-top: 35px; width: 260px;">
+🌱 Predict Crop
+</button>
+</center>
+
+</form>
+
+</div>
+
+</section>
+
+<footer>
+<p>© 2026 OptiCrop | AI Powered Crop Recommendation System</p>
+</footer>
+
+</body>
+</html>

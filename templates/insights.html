@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Field Visual Insights - OptiCrop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header>
+    <nav>
+        <h2 class="logo">🌱 OptiCrop</h2>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/findcrop">Find Crop</a></li>
+            <li><a href="/assistant">AI Assistant</a></li>
+            <li><a href="/history">History</a></li>
+            <li><a href="/evaluation">Model Performance</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="result-section">
+    <div class="farmer-result-container">
+
+        <!-- Top Navigation Banner -->
+        <div class="subpage-header-banner">
+            <a href="/analysis?id={{ pred.id }}" class="back-link">← Back to Soil & Climate Analysis</a>
+            <span class="crop-context-tag">Crop: <strong>{{ pred.primary_crop | capitalize }}</strong></span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="result-card page-title-card">
+            <div class="tick">📊</div>
+            <h1 class="farmer-heading">FIELD VISUAL INSIGHTS</h1>
+            <p class="farmer-subtext">
+                Graphical charts and visual indicators comparing your field parameters against the ideal agronomic profile for <strong>{{ pred.primary_crop | capitalize }}</strong>.
+            </p>
+        </div>
+
+        <!-- Section A: Soil Nutrients (NPK) -->
+        <div class="result-card visual-insights-card">
+            <h2>🌱 SECTION A — SOIL NUTRIENTS (NPK)</h2>
+            <p class="insights-intro">Comparison of your soil macronutrient levels against benchmark dataset averages:</p>
+
+            <div class="visual-bars-container">
+                {% for s in pred.soil_analysis if s.key in ['N', 'P', 'K'] %}
+                <div class="visual-bar-row">
+                    <div class="bar-label-wrap">
+                        <span class="bar-name">{{ s.name }}</span>
+                        <span class="bar-val"><strong>{{ s.value }}</strong> kg/ha (Typical: ~{{ s.crop_avg }} kg/ha)</span>
+                    </div>
+                    <div class="progress-bar-bg-lg">
+                        <div class="progress-bar-fill-lg {{ s.badge_class }}" style="width: {{ [s.value / 1.4, 100] | min }}%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Section B: Soil pH Spectrum -->
+        {% for s in pred.soil_analysis if s.key == 'ph' %}
+        <div class="result-card visual-insights-card">
+            <h2>🧪 SECTION B — SOIL pH SPECTRUM</h2>
+            <p class="insights-intro">Your field soil acidity/alkalinity position on the standard 0 to 14 pH scale:</p>
+
+            <div class="ph-meter-wrap">
+                <div class="ph-spectrum-bar">
+                    <div class="ph-marker" style="left: {{ (s.value / 14.0) * 100 }}%;">
+                        <span class="ph-pin">📍</span>
+                        <span class="ph-marker-text">pH {{ s.value }}</span>
+                    </div>
+                </div>
+                <div class="ph-labels">
+                    <span>0 (Acidic)</span>
+                    <span>7 (Neutral)</span>
+                    <span>14 (Alkaline)</span>
+                </div>
+            </div>
+            <p style="text-align: center; color: #555; font-size: 14.5px; margin-top: 10px;">
+                Optimal range for {{ pred.primary_crop | capitalize }}: <strong>5.5 - 7.5 pH</strong>
+            </p>
+        </div>
+        {% endfor %}
+
+        <!-- Section C: Climate Range Indicators -->
+        <div class="result-card visual-insights-card">
+            <h2>🌦️ SECTION C — CLIMATE RANGE INDICATORS</h2>
+            <p class="insights-intro">Visual range status for environmental temperature, humidity, and rainfall:</p>
+
+            <div class="climate-chips-grid">
+                {% for c in pred.climate_analysis %}
+                <div class="climate-chip {{ c.badge_class }}">
+                    <span class="chip-icon">{{ c.status_icon }}</span>
+                    <div class="chip-data">
+                        <span class="chip-name">{{ c.name }}</span>
+                        <span class="chip-val">{{ c.value }} {{ c.unit }}</span>
+                    </div>
+                    <span class="chip-badge">{{ c.status_text }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Multi-page Step Navigation -->
+        <div class="step-nav-card">
+            <div class="step-actions-wrap">
+                <a href="/analysis?id={{ pred.id }}">
+                    <button class="secondary-btn">← Back to Soil & Climate Analysis</button>
+                </a>
+                <a href="/history/{{ pred.id }}">
+                    <button class="main-btn">🌾 Back to Crop Recommendation</button>
+                </a>
+                <a href="/assistant?id={{ pred.id }}">
+                    <button class="ai-btn">🤖 Ask AI Assistant</button>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<footer>
+    <p>© 2026 OptiCrop | AI Powered Crop Recommendation System</p>
+</footer>
+
+</body>
+</html>
